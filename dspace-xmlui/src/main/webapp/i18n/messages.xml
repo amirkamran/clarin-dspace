@@ -38,6 +38,7 @@
         <message key="xmlui.general.perform">Perform</message>
         <message key="xmlui.general.queue">Queue</message>
 	<message key="xmlui.general.here">here</message>
+    <message key="xmlui.general.helpdesk">Help Desk</message>
 
         <!-- Keys which are used by exception2dri.xsl on error pages -->
         <message key="xmlui.error.contact_msg">Please contact the site administrator if you wish to report this error. If possible, please  provide details about what you were doing at the time this error occurred.</message>
@@ -53,7 +54,7 @@
 		-->
 	<message key="xmlui.PageNotFound.title">Page not found</message>
 	<message key="xmlui.PageNotFound.head">Page not found</message>
-	<message key="xmlui.PageNotFound.para1">We can't find the page you asked for.</message>
+	<message key="xmlui.PageNotFound.para1">Sorry, we couldn't find the page you've requested ({0}), if you think it should exist please contact our </message>
 
     <!--  session expired  -->
     <message key="xmlui.SessionExpired.title">Your Session has Expired</message>
@@ -644,6 +645,9 @@
 	<message key="xmlui.EPerson.FailedAuthentication.title">Authentication Failed</message>
     <message key="xmlui.EPerson.FailedAuthentication.trail">Failed Authentication</message>
     <message key="xmlui.EPerson.FailedAuthentication.h1">Authentication Failed</message>
+
+	<!-- cz.cuni.mff.ufal.dspace.authenticate.shibboleth.ShibEPerson -->
+	<message key="xmlui.ShibEPerson.locked_email">Your email ({0}) is already associated with a different user. It is also possible that you used a different identity provider to login before. For more information please contact our <a class="helpdesk-tolink">Help Desk</a>.</message>
 
 	<!-- Login xml files -->
 	<message key="xmlui.eperson.noAuthMethod.head">No Authentication Method Found</message>
@@ -2638,6 +2642,7 @@
 	<message key="xmlui.dri2xhtml.METS-1.0.item-no-files">There are no files associated with this item.</message>
 
     <message key="xmlui.ufal.METS-1.0.item-collections">Collection(s)</message>
+	<message key="xmlui.dri2xhtml.METS-1.0.item-relation-isreferencedby">Referenced by</message>
 
 	<message key="xmlui.dri2xhtml.METS-1.0.size-bytes">bytes</message>
     <message key="xmlui.dri2xhtml.METS-1.0.size-kilobytes">KB</message>
@@ -3029,12 +3034,11 @@
 	<message key="input_forms.field.dc.description.required">Please give us a description</message>
 	<message key="input_forms.field.dc.language.iso.label">Language</message>
 	<message key="input_forms.field.dc.language.iso.hint">Select the language of the main content of the item. Multiple languages are possible. Start
-		typing the language and use autocomplete form that will appear if applicable.
+		typing the language and use autocomplete form that will appear if applicable. Better to list all the languages then to use the 'mul' iso code (if there are too many, contact support).
 	</message>
 	<message key="input_forms.field.dc.language.iso.required">Please choose a language for the resource.</message>
 	<message key="input_forms.field.dc.language.iso1.label">Language</message>
-	<message key="input_forms.field.dc.language.iso1.hint">Select the spoken language (in ISO 639-3 format) of the main content of the item (use "N/A" if
-		not applicable). Multiple languages are possible. Start typing the language and use autocomplete
+	<message key="input_forms.field.dc.language.iso1.hint">If the tool/service is language dependent, select the appropriate language(s). Otherwise leave the field empty. Multiple languages are possible. Start typing the language and use autocomplete
 		form that will appear.
 	</message>
 	<message key="input_forms.field.dc.subject.label">Subject Keywords</message>
@@ -3210,6 +3214,9 @@
 	<message key="input_forms.complex_definitions.funding.3_projname.label">Funding project name</message>
 	<message key="input_forms.complex_definitions.funding.5_openaire_id.label">EU Project Identifier (OpenAIRE)</message>
 	<message key="input_forms.complex_definitions.sizeInfo.2_unit.label">Unit</message>
+	<message key="input_forms.field.dc.relation.isreferencedby.label">Referenced by</message>
+	<message key="input_forms.field.dc.relation.isreferencedby.hint">Link to original paper that references this dataset.</message>
+	<message key="input_forms.field.dc.relation.isreferencedby.regexp-warning">The supplied url must start with http/https</message>
 
 	<!-- cz.cuni.mff.ufal.ContractPage -->
 	<message key="xmlui.ContractPage.title">Distribution License Agreement</message>

@@ -36,10 +36,7 @@ import javax.ws.rs.core.Response.Status;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.BitstreamFormat;
-import org.dspace.content.Bundle;
-import org.dspace.content.ItemIterator;
-import org.dspace.content.Metadatum;
+import org.dspace.content.*;
 import org.dspace.content.service.ItemService;
 import org.dspace.eperson.Group;
 import org.dspace.rest.common.Bitstream;
@@ -103,7 +100,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.READ);
 
             writeStats(dspaceItem, UsageEvent.Action.VIEW, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -163,7 +160,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
 
             ItemIterator dspaceItems = org.dspace.content.Item.findAllUnfiltered(context);
             items = new ArrayList<Item>();
@@ -239,7 +236,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.READ);
 
             writeStats(dspaceItem, UsageEvent.Action.VIEW, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -298,7 +295,7 @@ public class ItemsResource extends Resource
         List<Bitstream> bitstreams = null;
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.READ);
 
             writeStats(dspaceItem, UsageEvent.Action.VIEW, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -369,7 +366,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.WRITE);
 
             writeStats(dspaceItem, UsageEvent.Action.UPDATE, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -439,6 +436,7 @@ public class ItemsResource extends Resource
             @QueryParam("name") String name, @QueryParam("description") String description,
             @QueryParam("groupId") Integer groupId, @QueryParam("year") Integer year, @QueryParam("month") Integer month,
             @QueryParam("day") Integer day, @QueryParam("userIP") String user_ip, @QueryParam("userAgent") String user_agent,
+            @QueryParam("file_mime_type") String fileMimeType,
             @QueryParam("xforwardedfor") String xforwardedfor, @Context HttpHeaders headers, @Context HttpServletRequest request)
             throws WebApplicationException
     {
@@ -449,7 +447,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.WRITE);
 
             writeStats(dspaceItem, UsageEvent.Action.UPDATE, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -479,14 +477,15 @@ public class ItemsResource extends Resource
             // Set bitstream name and description
             if (name != null)
             {
-                if (BitstreamResource.getMimeType(name) == null)
-                {
-                    dspaceBitstream.setFormat(BitstreamFormat.findUnknown(context));
+                BitstreamFormat bitstreamFormat = null;
+                if(fileMimeType != null){
+                    bitstreamFormat = BitstreamFormat.findByMIMEType(context, fileMimeType);
                 }
-                else
-                {
-                    dspaceBitstream.setFormat(BitstreamFormat.findByMIMEType(context, BitstreamResource.getMimeType(name)));
+                if(bitstreamFormat == null){
+                    bitstreamFormat = FormatIdentifier.guessFormat(context, dspaceBitstream);
                 }
+                //null bitstreamFormat results in unknown
+                dspaceBitstream.setFormat(bitstreamFormat);
                 dspaceBitstream.setName(name);
             }
             if (description != null)
@@ -494,7 +493,10 @@ public class ItemsResource extends Resource
                 dspaceBitstream.setDescription(description);
             }
 
+            //or we would need to add/remove ResourcePolicy (as in WorkspaceItem...AuthorizeManager.addPolicy(c, i, Constants.WRITE, e, ResourcePolicy.TYPE_SUBMISSION);)
+            context.turnOffAuthorisationSystem();
             dspaceBitstream.update();
+            context.restoreAuthSystemState();
 
             // Create policy for bitstream
             if (groupId != null)
@@ -552,6 +554,8 @@ public class ItemsResource extends Resource
 
             dspaceBitstream = org.dspace.content.Bitstream.find(context, dspaceBitstream.getID());
             bitstream = new Bitstream(dspaceBitstream, "");
+            //trigger auto generated metadata on item
+            dspaceItem.update();
 
             context.complete();
 
@@ -617,7 +621,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.WRITE);
 
             writeStats(dspaceItem, UsageEvent.Action.UPDATE, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -699,7 +703,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.DELETE);
 
             writeStats(dspaceItem, UsageEvent.Action.REMOVE, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -768,7 +772,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item dspaceItem = findItem(context, itemId, org.dspace.core.Constants.WRITE);
 
             writeStats(dspaceItem, UsageEvent.Action.UPDATE, user_ip, user_agent, xforwardedfor, headers, request, context);
@@ -849,7 +853,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
             org.dspace.content.Item item = findItem(context, itemId, org.dspace.core.Constants.WRITE);
 
             org.dspace.content.Bitstream bitstream = org.dspace.content.Bitstream.find(context, bitstreamId);
@@ -861,8 +865,8 @@ public class ItemsResource extends Resource
             }
             else if (!AuthorizeManager.authorizeActionBoolean(context, bitstream, org.dspace.core.Constants.DELETE))
             {
+                log.error("User(" + context.getCurrentUser().getEmail() + ") is not allowed to delete bitstream(id=" + bitstreamId + ").");
                 context.abort();
-                log.error("User(" + getUser(headers).getEmail() + ") is not allowed to delete bitstream(id=" + bitstreamId + ").");
                 return Response.status(Status.UNAUTHORIZED).build();
             }
 
@@ -950,7 +954,7 @@ public class ItemsResource extends Resource
 
         try
         {
-            context = createContext(getUser(headers));
+            context = createContext(headers);
 
             // TODO Repair, it ends by error:
             // "java.sql.SQLSyntaxErrorException: ORA-00932: inconsistent datatypes: expected - got CLOB"
